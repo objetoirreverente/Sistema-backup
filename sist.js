@@ -17,6 +17,8 @@ const diaAtual = date.getDate();
 
 const filesArr = [];
 
+
+
 fs.readdir(__dirname, (err, files) => { 
 	if (err) 
 		console.log(err); 
@@ -25,8 +27,17 @@ fs.readdir(__dirname, (err, files) => {
     		if(files[i] != 'backup' && files[i] != 'sist.js' && files[i] != 'back.bat'){filesArr.push(files[i]);}
     	}
         console.log(filesArr);
+        
 	} 	
 }) 
+
+
+/*filesArr.forEach(fn =>{
+	fs.copyFile(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual + '/' + fn, (err) => {
+		if(err) throw err;
+    });
+});*/
+
 
 
 
@@ -83,14 +94,29 @@ fs.access('./backup/', (error) =>{
 function copy(file, newPath){
 	fs.readFile(file, (err, data) =>{
 		const filenoext = file.slice(file.indexOf(path.extname(file)), file.length);
-		const typeData = path.extname(file) != '.txt' ? data : data.toString();
 		const enovodir = newPath ? newPath + '/' + file : filenoext + 'copia' + path.extname(file);
+	
+        fs.stat(file, (error, stats) =>{
+        	if(error) throw error;
+        	else{
+        		if(stats.isDirectory(file)){
+        			fs.cp(__dirname + '/' + file, __dirname + '/' + enovodir, {recursive: true}, (error) =>{
+        				if(error) throw error;
+        			});
+        		}
+        		else{
+        			const typeData = path.extname(file) != ('.txt' && "") ? data : data.toString();
+    				fs.writeFile(enovodir, typeData, (err) =>{
+    					if (err){
+             				console.log(file);
+    					} 
+    					else console.log('Backup do arquivo ' + file + ' criado')
+    				});
+        		}
+        	}
 
-        console.log(data);
-    	fs.writeFile(enovodir, typeData, (err) =>{
-    		if (err) throw err;
-    		else console.log('Backup do arquivo ' + file + ' criado')
-    	});
+        });
+
 	});
 }
 
