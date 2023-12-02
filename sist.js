@@ -24,7 +24,7 @@ fs.readdir(__dirname, (err, files) => {
 		console.log(err); 
 	else { 
     	for(var i = 0; i<files.length;i++){
-    		if(files[i] != 'backup' && files[i] != 'sist.js' && files[i] != 'back.bat'){filesArr.push(files[i]);}
+    		if(files[i] != 'backup' && files[i] != 'sist.js' && files[i] != 'back.bat' && files[i] != '.git'){filesArr.push(files[i]);}
     	}
         console.log(filesArr);
         
