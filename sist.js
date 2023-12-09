@@ -15,28 +15,23 @@ const mesAtual = months[date.getMonth()];
 const diaAtual = date.getDate();
 
 
-const filesArr = [];
+var filesArr = [];
 
 
-
-fs.readdir(__dirname, (err, files) => { 
-	if (err) 
-		console.log(err); 
-	else { 
-    	for(var i = 0; i<files.length;i++){
-    		if(files[i] != 'backup' && files[i] != 'sist.js' && files[i] != 'back.bat' && files[i] != '.git'){filesArr.push(files[i]);}
-    	}
-        console.log(filesArr);
+function groupFiles(){
+	filesArr = [];
+	fs.readdir(__dirname, (err, files) => { 
+		if (err) 
+			console.log(err); 
+		else{ 
+    		for(var i = 0; i<files.length;i++){
+    			if(files[i] != 'backup' && files[i] != 'sist.js' && files[i] != 'back.bat' && files[i] != '.git'){filesArr.push(files[i]);}
+    		}
         
-	} 	
-}) 
-
-
-/*filesArr.forEach(fn =>{
-	fs.copyFile(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual + '/' + fn, (err) => {
-		if(err) throw err;
-    });
-});*/
+		} 	
+	});
+} 
+groupFiles();
 
 
 
@@ -77,9 +72,21 @@ fs.access('./backup/', (error) =>{
 	 	});
 	}
 	else{
+
     	fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
-	    	if(error){
-		    	console.log(error);
+	    	if(error){ 
+	    		console.log('Esse diretorio ja existe e sera reescrito');
+	    		fs.rmSync('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, { recursive: true, force: true });
+	    		groupFiles();
+
+        	    fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
+        			if (error) throw error;
+        			else{
+	     				filesArr.forEach(fn =>{
+                			copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
+                	    });
+        		    }
+        		});
 	        }
 	        else{
 	     		console.log('diretorio do dia ' + diaAtual + ' criado :)');
@@ -88,8 +95,10 @@ fs.access('./backup/', (error) =>{
                 });
 	        }
         });
+   
+        
 	}
-})
+});
 
 function copy(file, newPath){
 	fs.readFile(file, (err, data) =>{
@@ -102,13 +111,14 @@ function copy(file, newPath){
         		if(stats.isDirectory(file)){
         			fs.cp(__dirname + '/' + file, __dirname + '/' + enovodir, {recursive: true}, (error) =>{
         				if(error) throw error;
+        				else{console.log('Backup do arquivo ' + file + ' criado');}
         			});
         		}
         		else{
         			const typeData = path.extname(file) != ('.txt' && "") ? data : data.toString();
     				fs.writeFile(enovodir, typeData, (err) =>{
     					if (err){
-             				console.log(file);
+             				console.log(err);
     					} 
     					else console.log('Backup do arquivo ' + file + ' criado')
     				});
