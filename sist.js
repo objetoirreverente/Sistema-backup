@@ -34,10 +34,10 @@ function groupFiles(){
 groupFiles();
 
 
-
-
+//Tenta acessar a pasta backup
 fs.access('./backup/', (error) =>{
 	if(error){
+		 //Se não existe, a pasta sera criada pela primeira vez
     	fs.mkdir('./backup/', (error) =>{		
         	if(error){
 				console.log(error);
@@ -72,31 +72,67 @@ fs.access('./backup/', (error) =>{
 	 	});
 	}
 	else{
+		//a pasta backup existe
+		//Caso vire o ano, uma nova pasta do ano sera criada:
+		fs.mkdir('./backup/' + anoAtual, (error) =>{
+			if(error){
+				//Porem, se a pasta do ano ja existe, cria pasta do mes.
+			    fs.mkdir('./backup/' + anoAtual + '/' + mesAtual, (error) =>{
+			    	if(error){
+				    	//Se a pasta do mes ja existe. Cria dia atual
+			    		fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
+			    			if(error){
+				    			//Se essa pasta ja existe. Reescreva
+	    						console.log('Esse diretorio ja existe e sera reescrito');
+	    						fs.rmSync('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, { recursive: true, force: true });
+	    						groupFiles();
 
-    	fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
-	    	if(error){ 
-	    		console.log('Esse diretorio ja existe e sera reescrito');
-	    		fs.rmSync('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, { recursive: true, force: true });
-	    		groupFiles();
-
-        	    fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
-        			if (error) throw error;
-        			else{
-	     				filesArr.forEach(fn =>{
-                			copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
-                	    });
-        		    }
-        		});
-	        }
-	        else{
-	     		console.log('diretorio do dia ' + diaAtual + ' criado :)');
-	     		filesArr.forEach(fn =>{
-                	copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
-                });
-	        }
-        });
-   
-        
+        	   					fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
+        							if (error){
+        								console.log(error);
+        							} 
+        							else{
+	     								filesArr.forEach(fn =>{
+                							copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
+                	   					});
+        		    				}
+        						});
+							}
+	       					else{
+	       						//Se a pasta nao existe, crie e copie os arquivos para ela
+	     						console.log('diretorio do dia ' + diaAtual + ' criado :)');
+	     						filesArr.forEach(fn =>{
+                					copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
+                				});
+	       					}
+		       			});
+					}
+		       });
+			}
+			else{
+			    //Se a pasta do ano foi criada, crie também a pasta do mes
+			    fs.mkdir('./backup/' + anoAtual + '/' + mesAtual, (error) =>{
+			    	if(error){
+			    		//Se a pasta do mes ja existe, crie a pasta do dia e copie os arquivos
+			    		fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
+	     					console.log('diretorio do dia ' + diaAtual + ' criado :)');
+	     					filesArr.forEach(fn =>{
+                				copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
+                			});
+			    		});
+			    	}
+			    	else{
+			    		//Se a pasta do mes foi criada, crie tambem a pasta do dia e copie os arquivos
+			    		fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
+	     					console.log('diretorio do dia ' + diaAtual + ' criado :)');
+	     					filesArr.forEach(fn =>{
+                				copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
+                			});
+			    		});
+			    	}
+			    });	  
+			}
+		});      
 	}
 });
 
