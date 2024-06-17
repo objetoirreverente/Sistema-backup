@@ -107,21 +107,6 @@ fs.access('./backup/', (error) =>{
 	       					}
 		       			});
 					}
-					else{
-						//A pasta do mes nao existia e foi criada
-						//Agora crie a pasta do dia e copie os arauivos
-        	   			fs.mkdir('./backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual, (error) =>{
-        					if (error){
-        						console.log(error);
-        					} 
-        					else{
-	     						filesArr.forEach(fn =>{
-                					copy(fn, './backup/' + anoAtual + '/' + mesAtual + '/' + diaAtual);
-                	   			});
-        		    		}
-        				});
-
-					}
 		       });
 			}
 			else{
